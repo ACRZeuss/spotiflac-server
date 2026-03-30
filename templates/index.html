@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpotiFLAC Studio</title>
+    <title>SpotiFLAC Server</title>
     <style>
         /* Modern & Sophisticated Dark Theme */
         :root {
@@ -11,10 +11,10 @@
             --bg-container: #121212;
             --bg-input: #1e1e1e;
             --bg-input-focus: #2a2a2a;
-            --primary-neon: #1DB954; /* Spotify Green */
+            --primary-neon: #1DB954;
             --primary-hover: #21e065;
             --text-primary: #FFFFFF;
-            --text-secondary: #A0A0A0; /* Soft gray */
+            --text-secondary: #A0A0A0;
             --border-muted: #282828;
             --danger-neon: #ff4d4d;
             --font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -42,209 +42,88 @@
             border: 1px solid var(--border-muted);
         }
 
-        /* Logo Area */
-        h2 {
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 35px;
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            text-transform: lowercase;
-        }
-
+        h2 { text-align: center; margin-top: 0; margin-bottom: 35px; font-size: 32px; font-weight: 800; letter-spacing: -1px; text-transform: lowercase; }
         h2 span.spot { color: var(--text-primary); }
         h2 span.flac { color: var(--primary-neon); text-shadow: 0 0 10px rgba(29, 185, 84, 0.5); }
 
-        /* Unified Download Form */
-        form.download-form {
+        form#mainForm { margin-bottom: 25px; }
+
+        .download-bar {
             display: flex;
             background-color: var(--bg-input);
             border-radius: 50px;
             padding: 4px;
             border: 1px solid transparent;
             transition: border-color 0.3s ease, background-color 0.3s ease;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
-        form.download-form:focus-within {
+        .download-bar:focus-within {
             border-color: var(--border-muted);
             background-color: var(--bg-input-focus);
         }
 
         input[type="text"] {
-            flex: 1;
-            padding: 14px 25px;
-            border-radius: 50px;
-            border: none;
-            background-color: transparent;
-            color: var(--text-primary);
-            font-size: 16px;
-            outline: none;
+            flex: 1; padding: 14px 25px; border-radius: 50px; border: none; background-color: transparent; color: var(--text-primary); font-size: 16px; outline: none;
         }
-
-        input[type="text"]::placeholder {
-            color: var(--text-secondary);
-        }
+        input[type="text"]::placeholder { color: var(--text-secondary); }
 
         button.primary-btn {
-            background-color: var(--primary-neon);
-            color: #000000;
-            font-weight: 700;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 15px;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            background-color: var(--primary-neon); color: #000000; font-weight: 700; border: none; padding: 14px 30px; border-radius: 50px; cursor: pointer; font-size: 15px; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 8px;
         }
+        button.primary-btn:hover:not(:disabled) { background-color: var(--primary-hover); }
+        button.primary-btn:active:not(:disabled) { transform: scale(0.98); }
+        button.primary-btn:disabled { background-color: #333333; color: #777777; cursor: not-allowed; }
 
-        button.primary-btn:hover:not(:disabled) {
-            background-color: var(--primary-hover);
-        }
-
-        button.primary-btn:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
-        button.primary-btn:disabled {
-            background-color: #333333;
-            color: #777777;
-            cursor: not-allowed;
-        }
-
-        /* Status & Log Area */
-        #status-text {
-            font-size: 15px;
-            font-weight: 500;
-            margin: 15px 0;
-            min-height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        #log-container {
-            margin-top: 15px;
-            background-color: #000000;
-            color: var(--text-secondary);
-            padding: 15px;
-            border-radius: 10px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 13px;
-            display: none;
-            max-height: 180px;
-            overflow-y: auto;
+        /* Settings Panel Styles */
+        details.settings-panel {
+            background-color: var(--bg-input);
+            border-radius: 12px;
             border: 1px solid var(--border-muted);
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
+        details.settings-panel summary {
+            padding: 14px 20px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-secondary); list-style: none; display: flex; align-items: center; gap: 8px; user-select: none;
+        }
+        details.settings-panel summary::-webkit-details-marker { display: none; }
+        details.settings-panel summary:hover { color: var(--text-primary); background-color: var(--bg-input-focus); }
+        
+        .settings-content {
+            padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 15px; border-top: 1px solid var(--border-muted); margin-top: 5px; padding-top: 15px;
+        }
+        .setting-group { display: flex; flex-direction: column; gap: 6px; }
+        .setting-group label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .setting-group select {
+            background-color: #000000; color: var(--text-primary); border: 1px solid var(--border-muted); padding: 10px; border-radius: 8px; font-size: 14px; outline: none; cursor: pointer;
+        }
+        .setting-group select:focus { border-color: var(--primary-neon); }
+        .setting-group select:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Modern Spinner */
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            border-top-color: currentColor;
-            animation: spin 0.8s linear infinite;
-        }
+        #status-text { font-size: 15px; font-weight: 500; margin: 15px 0; min-height: 24px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        #log-container { margin-top: 15px; background-color: #000000; color: var(--text-secondary); padding: 15px; border-radius: 10px; font-family: 'Consolas', monospace; font-size: 13px; display: none; max-height: 180px; overflow-y: auto; border: 1px solid var(--border-muted); }
+
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 50%; border-top-color: currentColor; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* File Library Section */
-        .file-section {
-            margin-top: 45px;
-            padding-top: 30px;
-            border-top: 1px solid var(--border-muted);
-        }
-
-        .file-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .file-header h3 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        button.secondary-btn {
-            background-color: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: border-color 0.2s ease, transform 0.1s ease;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        button.secondary-btn:hover {
-            border-color: var(--text-primary);
-        }
+        /* File List */
+        .file-section { margin-top: 45px; padding-top: 30px; border-top: 1px solid var(--border-muted); }
+        .file-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .file-header h3 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
         
-        button.secondary-btn:active {
-            transform: scale(0.98);
-        }
+        button.secondary-btn { background-color: transparent; color: var(--text-primary); border: 1px solid var(--text-secondary); padding: 8px 16px; border-radius: 50px; font-size: 14px; cursor: pointer; transition: border-color 0.2s ease, transform 0.1s ease; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        button.secondary-btn:hover { border-color: var(--text-primary); }
+        button.secondary-btn:active { transform: scale(0.98); }
 
-        #file-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            max-height: 300px;
-            overflow-y: auto;
-        }
+        #file-list { list-style-type: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
+        #file-list li { padding: 14px 20px; border-radius: 10px; font-size: 15px; display: flex; align-items: center; color: var(--text-secondary); transition: background-color 0.2s ease; margin-bottom: 4px; }
+        #file-list li:hover { background-color: var(--bg-input); color: var(--text-primary); }
+        #file-list li span.icon { margin-right: 15px; font-size: 18px; opacity: 0.7; color: var(--primary-neon); }
 
-        #file-list li {
-            padding: 14px 20px;
-            border-radius: 10px;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            color: var(--text-secondary);
-            transition: background-color 0.2s ease;
-            margin-bottom: 4px;
-        }
-        
-        #file-list li:last-child {
-            margin-bottom: 0;
-        }
-
-        #file-list li:hover {
-            background-color: var(--bg-input);
-            color: var(--text-primary);
-        }
-
-        #file-list li span.icon {
-            margin-right: 15px;
-            font-size: 18px;
-            opacity: 0.7;
-            color: var(--primary-neon);
-        }
-
-        /* Modern Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #404040; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #606060; }
-
-        /* Responsive */
-        @media (max-width: 550px) {
-            .container { padding: 25px; }
-            h2 { font-size: 26px; }
-            input[type="text"] { font-size: 15px; padding: 12px 20px; }
-            button.primary-btn { padding: 12px 20px; font-size: 14px; }
-        }
     </style>
 </head>
 <body>
@@ -252,11 +131,44 @@
     <div class="container">
         <h2><span class="spot">Spoti</span><span class="flac">FLAC</span></h2>
         
-        <form id="downloadForm" class="download-form">
-            <input type="text" name="url" placeholder="Spotify Linkini Yapıştır (Albüm, Çalma Listesi...)" required autocomplete="off">
-            <button type="submit" id="submitBtn" class="primary-btn">
-                <span>İndir</span>
-            </button>
+        <form id="mainForm">
+            <div class="download-bar">
+                <input type="text" name="url" placeholder="Spotify Linkini Yapıştır (Albüm, Çalma Listesi...)" required autocomplete="off">
+                <button type="submit" id="submitBtn" class="primary-btn">
+                    <span>İndir</span>
+                </button>
+            </div>
+
+            <details class="settings-panel">
+                <summary><span style="font-size: 16px;">⚙️</span> İndirme Ayarları</summary>
+                <div class="settings-content">
+                    <div class="setting-group">
+                        <label>Kaynak Servis (Müziğin Çekileceği Platform)</label>
+                        <select name="service">
+                            <option value="tidal">Tidal (Varsayılan - Yüksek Başarı)</option>
+                            <option value="qobuz">Qobuz (Odyofil Tercihi)</option>
+                            <option value="deezer">Deezer</option>
+                            <option value="amazon">Amazon Music</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Klasör Düzeni</label>
+                        <select name="folder_structure">
+                            <option value="artist_album">Sanatçı / Albüm / Şarkılar (Önerilen)</option>
+                            <option value="artist">Sanatçı / Şarkılar</option>
+                            <option value="flat">Tümünü İndirilenlere At (Düz)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label>Ses Kalitesi</label>
+                        <select disabled>
+                            <option>Hi-Res Lossless FLAC (Sabit Format)</option>
+                        </select>
+                    </div>
+                </div>
+            </details>
         </form>
         
         <div id="status-text" style="color: var(--text-secondary);"></div>
@@ -276,7 +188,6 @@
     </div>
 
     <script>
-        // Dosyaları sunucudan çekip listeleme
         async function loadFiles() {
             const fileList = document.getElementById('file-list');
             fileList.innerHTML = '<li><span class="icon">⏳</span> Yükleniyor...</li>';
@@ -301,14 +212,13 @@
 
         window.onload = loadFiles;
 
-        document.getElementById('downloadForm').onsubmit = async (e) => {
+        document.getElementById('mainForm').onsubmit = async (e) => {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
             const statusText = document.getElementById('status-text');
             const logContainer = document.getElementById('log-container');
             
-            // Modern Loading State
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<div class="spinner"></div><span>Başlatılıyor...</span>';
             
@@ -317,6 +227,7 @@
             logContainer.style.display = 'none';
             logContainer.innerText = '';
             
+            // Form verileri (URL ve ayarlar dahil) tek seferde çekilir
             const formData = new FormData(e.target);
             
             try {
@@ -355,8 +266,8 @@
                         if (statusData.status === 'completed') {
                             statusText.style.color = "var(--primary-neon)";
                             statusText.innerText = '✅ İndirme başarıyla tamamlandı!';
-                            loadFiles(); // Başarılıysa listeyi yenile
-                            document.querySelector('input[name="url"]').value = ''; // Inputu temizle
+                            loadFiles(); 
+                            document.querySelector('input[name="url"]').value = ''; 
                         } else {
                             statusText.style.color = "var(--danger-neon)";
                             statusText.innerText = '❌ Hata: ' + statusData.message;
@@ -367,14 +278,13 @@
                             logContainer.innerText = statusData.log;
                         }
                     } else {
-                        // Processing state with spinner
                         statusText.style.color = "var(--text-secondary)";
                         statusText.innerHTML = `<span class="spinner" style="color: var(--text-secondary); margin-right: 10px;"></span> ${statusData.message}`;
                     }
                 } catch (error) {
                     console.error("Durum kontrolü başarısız:", error);
                 }
-            }, 3000); // 3 saniyede bir durumu sorgula
+            }, 3000);
         }
     </script>
 </body>

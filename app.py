@@ -10,18 +10,24 @@ DOWNLOAD_DIR = "/downloads"
 # Görev durumlarını bellekte tutacağımız basit bir sözlük
 tasks = {}
 
-def run_download(task_id, url):
+def run_download(task_id, url, folder_structure, service):
     """Arka planda çalışacak asıl indirme fonksiyonu"""
     try:
-        # spotiflac komutuna sanatçı ve albüm klasörü oluşturma parametreleri eklendi
+        cmd = ["spotiflac", url, DOWNLOAD_DIR]
+        
+        # Seçilen servisi komuta ekle
+        if service in ['tidal', 'qobuz', 'deezer', 'amazon']:
+            cmd.extend(["--service", service])
+            
+        # Klasör yapısı tercihlerini komuta ekle
+        if folder_structure == 'artist_album':
+            cmd.extend(["--use-artist-subfolders", "--use-album-subfolders"])
+        elif folder_structure == 'artist':
+            cmd.extend(["--use-artist-subfolders"])
+        # 'flat' seçilirse hiçbir parametre eklenmez, düz indirir.
+
         process = subprocess.run(
-            [
-                "spotiflac", 
-                url, 
-                DOWNLOAD_DIR,
-                "--use-artist-subfolders",
-                "--use-album-subfolders"
-            ],
+            cmd,
             capture_output=True, 
             text=True
         )
@@ -44,34 +50,31 @@ def download():
     if not url:
         return jsonify({"status": "error", "message": "Lütfen bir Spotify linki girin."}), 400
 
-    # Benzersiz bir görev ID'si oluştur ve durumu 'processing' olarak kaydet
+    # Arayüzden gelen ayarları al, boşsa varsayılanları kullan
+    folder_structure = request.form.get('folder_structure', 'artist_album')
+    service = request.form.get('service', 'tidal')
+
     task_id = str(uuid.uuid4())
     tasks[task_id] = {"status": "processing", "message": "İndirme arka planda devam ediyor...", "log": ""}
     
-    # İndirme işlemini arka plan thread'inde başlat
-    thread = threading.Thread(target=run_download, args=(task_id, url))
+    # Ayarları thread'e gönder
+    thread = threading.Thread(target=run_download, args=(task_id, url, folder_structure, service))
     thread.start()
     
-    # Kullanıcıya bekletmeden task_id'yi döndür
     return jsonify({"status": "started", "task_id": task_id})
 
 @app.route('/status/<task_id>', methods=['GET'])
 def status(task_id):
-    """Ön yüzün belirli aralıklarla durumu sorgulayacağı uç nokta"""
     task = tasks.get(task_id)
     if not task:
         return jsonify({"status": "error", "message": "Görev bulunamadı."}), 404
-    
     return jsonify(task)
 
 @app.route('/files', methods=['GET'])
 def list_files():
-    """İndirme klasöründeki ses dosyalarını bulur ve listeler"""
     files_list = []
-    # Klasörü ve alt klasörleri (Sanatçı/Albüm yapısı) tara
     for root, dirs, files in os.walk(DOWNLOAD_DIR):
         for file in files:
-            # Sadece ses dosyalarını filtrele
             if file.lower().endswith(('.flac', '.mp3', '.m4a', '.ogg', '.wav')):
                 rel_dir = os.path.relpath(root, DOWNLOAD_DIR)
                 if rel_dir == ".":
@@ -79,8 +82,4 @@ def list_files():
                 else:
                     files_list.append(os.path.join(rel_dir, file))
                     
-    # Alfabetik sıraya dizip JSON olarak döndür
     return jsonify({"files": sorted(files_list)})
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
