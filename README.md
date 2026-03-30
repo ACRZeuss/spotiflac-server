@@ -47,7 +47,7 @@ If you are using [Runtipi](https://runtipi.io/) to manage your home server, foll
     services:
       spotiflac:
         image: spotiflac-server:latest
-        container_name: spotiflac-custom
+        container_name: spotiflac-server
         volumes:
           # Maps to Runtipi's default music directory
           - /opt/runtipi/media/music:/downloads
