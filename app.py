@@ -29,17 +29,38 @@ MESSAGES = {
 
 def run_download(task_id, url, folder_structure, service, lang):
     try:
-        cmd = ["spotiflac", url, DOWNLOAD_DIR]
-        
-        if service in ['tidal', 'qobuz', 'deezer', 'amazon']:
-            cmd.extend(["--service", service])
-            
-        if folder_structure == 'artist_album':
-            cmd.extend(["--use-artist-subfolders", "--use-album-subfolders"])
-        elif folder_structure == 'artist':
-            cmd.extend(["--use-artist-subfolders"])
+        # Arayüzden gelen formata göre modüle gidecek boolean değerleri belirliyoruz
+        use_artist = "True" if folder_structure in ['artist_album', 'artist'] else "False"
+        use_album = "True" if folder_structure == 'artist_album' else "False"
 
-        process = subprocess.run(cmd, capture_output=True, text=True)
+        # CLI (terminal) ayrıştırma bug'ını aşmak için, hafızada anlık bir Python
+        # betiği oluşturuyor ve doğrudan SpotiFLAC sınıfını (class) çağırıyoruz.
+        py_script = f"""
+import sys
+from SpotiFLAC import SpotiFLAC
+
+url = sys.argv[1]
+output_dir = sys.argv[2]
+service = sys.argv[3]
+
+try:
+    SpotiFLAC(
+        url=url,
+        output_dir=output_dir,
+        services=[service],
+        use_artist_subfolders={use_artist},
+        use_album_subfolders={use_album}
+    )
+except Exception as e:
+    print(str(e), file=sys.stderr)
+    sys.exit(1)
+"""
+        # Oluşturduğumuz bu betiği güvenlik için argümanları (sys.argv) dışarıdan alacak şekilde tetikliyoruz
+        process = subprocess.run(
+            ["python3", "-c", py_script, url, DOWNLOAD_DIR, service],
+            capture_output=True, 
+            text=True
+        )
         
         if process.returncode == 0:
             tasks[task_id] = {"status": "completed", "message": MESSAGES[lang]['completed'], "log": process.stdout}
