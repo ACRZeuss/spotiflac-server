@@ -13,9 +13,15 @@ tasks = {}
 def run_download(task_id, url):
     """Arka planda çalışacak asıl indirme fonksiyonu"""
     try:
-        # CLI sürümünü subprocess ile çağırıyoruz
+        # spotiflac komutuna sanatçı ve albüm klasörü oluşturma parametreleri eklendi
         process = subprocess.run(
-            ["spotiflac", url, DOWNLOAD_DIR],
+            [
+                "spotiflac", 
+                url, 
+                DOWNLOAD_DIR,
+                "--use-artist-subfolders",
+                "--use-album-subfolders"
+            ],
             capture_output=True, 
             text=True
         )
