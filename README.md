@@ -25,72 +25,79 @@ A lightweight, modern, and asynchronous web interface for the [SpotiFLAC](https:
 If you are using [Runtipi](https://runtipi.io/) to manage your home server, follow these steps to integrate the app smoothly:
 
 1. **Clone the repository to your server:**
+
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
-   cd YOUR_REPO_NAME
+   git clone https://github.com/ACRZeuss/spotiflac-server.git
+   cd spotiflac-server
+   ```
 
 2. **Build the Docker image locally:**
+
     ```bash
-    docker build -t spotiflac-server:latest . ``````
-    
+    docker build -t spotiflac-server:latest .
+    ```
+
     Add as a Custom App in Runtipi:
 
-        Open your Runtipi Dashboard -> App Store -> Add Custom App.
+    1. Open your Runtipi Dashboard -> App Store -> Add Custom App.
+    2. Name it spotiflac.
+    3. Paste the following YAML configuration:
 
-        Name it spotiflac.
-
-        Paste the following YAML configuration:
-        ```yaml
-
-        services:
-          spotiflac:
-            image: spotiflac-server:latest
-            container_name: spotiflac-custom
-            volumes:
-              # Maps to Runtipi's default music directory
-              - /opt/runtipi/media/music:/downloads
-            restart: unless-stopped
-            x-runtipi:
-              is_main: true
-              internal_port: 5000
-
+    ```yaml
+    services:
+      spotiflac:
+        image: spotiflac-server:latest
+        container_name: spotiflac-custom
+        volumes:
+          # Maps to Runtipi's default music directory
+          - /opt/runtipi/media/music:/downloads
+        restart: unless-stopped
         x-runtipi:
-          schema_version: 2```
+          is_main: true
+          internal_port: 5000
 
-        Click Install. You can now access SpotiFLAC Server directly from your Runtipi dashboard!
+    x-runtipi:
+      schema_version: 2
+    ```
+
+    Click Install. You can now access SpotiFLAC Server directly from your Runtipi dashboard!
 
 ### Option B: Standalone Docker Compose
 
 If you are not using Runtipi, you can run it using standard Docker Compose:
 
 1. **Clone the repository:**
+
     ```bash
+    git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+    cd YOUR_REPO_NAME
+    ```
 
-    git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
-    cd YOUR_REPO_NAME```
+2. **Edit docker-compose.yml (Optional):**
 
-2.  **Edit docker-compose.yml (Optional):**
-    Change the volume path from /opt/runtipi/media/music to your preferred local music directory.
+   Change the volume path from `/opt/runtipi/media/music` to your preferred local music directory.
 
-    Build and start the container:
+   Build and start the container:
+
     ```bash
+    docker compose up -d --build
+    ```
 
-    docker compose up -d --build```
-
-    Access the web interface at http://<your-server-ip>:5000.
+   Access the web interface at `http://<your-server-ip>:5000`.
 
 ### ⚙️ Usage
 
-1.  Open the web interface.
+1. Open the web interface.
 
-2.  Select your preferred language (EN/TR) from the top right corner.
+2. Select your preferred language (EN/TR) from the top right corner.
 
-3.  Expand the Download Settings panel to select your source (Tidal, Qobuz, etc.) and folder layout.
+3. Expand the Download Settings panel to select your source (Tidal, Qobuz, etc.) and folder layout.
 
-4.  Paste a Spotify track, album, or playlist URL into the input field.
+4. Paste a Spotify track, album, or playlist URL into the input field.
 
-5.  Click Download.
-6.  The UI will display the live progress. Once completed, the files will automatically appear in the Library section below and sync with your media server. 
+5. Click Download.
+
+6. The UI will display the live progress. Once completed, the files will automatically appear in the Library section below and sync with your media server.
 
 ### 🛠️ Tech Stack
 
