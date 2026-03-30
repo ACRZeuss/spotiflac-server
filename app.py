@@ -15,7 +15,7 @@ def run_download(task_id, url):
     try:
         # CLI sürümünü subprocess ile çağırıyoruz
         process = subprocess.run(
-            ["python3", "SpotiFLAC-Command-Line-Interface/launcher.py", url, DOWNLOAD_DIR],
+            ["spotiflac", url, DOWNLOAD_DIR],
             capture_output=True, 
             text=True
         )
