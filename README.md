@@ -69,8 +69,8 @@ If you are not using Runtipi, you can run it using standard Docker Compose:
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-    cd YOUR_REPO_NAME
+    git clone https://github.com/ACRZeuss/spotiflac-server.git
+    cd spotiflac-server
     ```
 
 2. **Edit docker-compose.yml (Optional):**
@@ -98,6 +98,90 @@ If you are not using Runtipi, you can run it using standard Docker Compose:
 5. Click Download.
 
 6. The UI will display the live progress. Once completed, the files will automatically appear in the Library section below and sync with your media server.
+
+## FAQ
+
+<details>
+<summary>Is this software free?</summary>
+
+_Yes. This software is completely free.
+You do not need an account, login, or subscription.
+All you need is an internet connection._
+
+</details>
+
+<details>
+<summary>Can using this software get my Spotify account suspended or banned?</summary>
+
+_No.
+This software has no connection to your Spotify account.
+Spotify data is obtained through reverse engineering of the Spotify Web Player, not through user authentication._
+
+</details>
+
+<details>
+<summary>Where does the audio come from?</summary>
+
+_The audio is fetched using third-party APIs._
+
+</details>
+
+<details>
+<summary>Why does metadata fetching sometimes fail?</summary>
+
+_This usually happens because your IP address has been rate-limited.
+You can wait and try again later, or use a VPN to bypass the rate limit._
+
+</details>
+
+<details>
+<summary>Why does Windows Defender or antivirus flag or delete the file?</summary>
+
+_This is a false positive.
+It likely happens because the executable is compressed using UPX._
+
+_If you are concerned, you can fork the repository and build the software yourself from source._
+
+</details>
+
+<details>
+<summary>Want to support the project?</summary>
+
+_If this software is useful and brings you value,
+consider supporting the project by buying me a coffee.
+Your support helps keep development going._
+
+</details>
+
+## Other projects
+
+### [SpotiFLAC (Desktop)](https://github.com/afkarxyz/SpotiFLAC)
+
+Download music in true lossless FLAC from Tidal, Qobuz & Amazon Music available for Windows, macOS & Linux.
+
+### [SpotiFLAC Next](https://github.com/afkarxyz/SpotiFLAC-Next)
+
+Get Spotify tracks in true FLAC from Tidal, Qobuz, Amazon Music & Deezer — no account required.
+
+### [SpotiDownloader](https://github.com/afkarxyz/SpotiDownloader)
+
+Get Spotify tracks, albums, playlists and discography in MP3 and FLAC.
+
+### [SpotubeDL](https://spotubedl.com)
+
+Download Spotify Tracks, Albums, Playlists as MP3/OGG/Opus with High Quality.
+
+### [SpotiFLAC (Mobile)](https://github.com/zarzet/SpotiFLAC-Mobile)
+
+SpotiFLAC for Android & iOS — maintained by [@zarzet](https://github.com/zarzet)
+
+### [SpotiFLAC (CLI)](https://github.com/Nizarberyan/SpotiFLAC)
+
+SpotiFLAC for command-line environments — maintained by [@Nizarberyan](https://github.com/Nizarberyan)
+
+### [SpotiFLAC (Python Module)](https://github.com/ShuShuzinhuu/SpotiFLAC-Module-Version)
+
+SpotiFLAC Python library for SpotiFLAC integration — maintained by [@ShuShuzinhuu](https://github.com/ShuShuzinhuu)
 
 ### 🛠️ Tech Stack
 
