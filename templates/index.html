@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotiFLAC Downloader</title>
+    <style>
+        body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; color: #333; }
+        input[type="text"] { width: 70%; padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; cursor: pointer; background: #0066cc; color: white; border: none; border-radius: 4px; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #log-container { margin-top: 20px; background: #2b2b2b; color: #a9b7c6; padding: 15px; border-radius: 5px; min-height: 50px; white-space: pre-wrap; font-family: monospace; display: none; max-height: 200px; overflow-y: auto; }
+        .spinner { display: inline-block; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* Dosya Listesi Stilleri */
+        .file-section { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; }
+        #file-list { background: #f9f9f9; padding: 15px; border-radius: 5px; list-style-type: none; max-height: 300px; overflow-y: auto; border: 1px solid #eee; margin-top: 10px; }
+        #file-list li { padding: 8px 0; border-bottom: 1px solid #eaeaea; font-size: 0.9em; }
+        #file-list li:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <h2>SpotiFLAC Web Arayüzü</h2>
+    <form id="downloadForm">
+        <input type="text" name="url" placeholder="Spotify Albüm/Şarkı Linkini Yapıştır" required>
+        <button type="submit" id="submitBtn">İndir</button>
+    </form>
+    
+    <h4 id="status-text" style="color: #0066cc;"></h4>
+    <div id="log-container"></div>
+
+    <div class="file-section">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">Sunucudaki Müzikler</h3>
+            <button type="button" onclick="loadFiles()" style="padding: 5px 10px; font-size: 0.8em;">🔄 Yenile</button>
+        </div>
+        <ul id="file-list">
+            <li>Yükleniyor...</li>
+        </ul>
+    </div>
+
+    <script>
+        // Dosyaları sunucudan çekip listeleme
+        async function loadFiles() {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '<li>Yükleniyor...</li>';
+            try {
+                const res = await fetch('/files');
+                const data = await res.json();
+                
+                fileList.innerHTML = '';
+                if (data.files && data.files.length > 0) {
+                    data.files.forEach(file => {
+                        const li = document.createElement('li');
+                        li.textContent = '🎵 ' + file;
+                        fileList.appendChild(li);
+                    });
+                } else {
+                    fileList.innerHTML = '<li style="color: #888;">Henüz indirilen dosya yok.</li>';
+                }
+            } catch (error) {
+                fileList.innerHTML = '<li style="color: red;">Dosyalar yüklenemedi.</li>';
+            }
+        }
+
+        window.onload = loadFiles;
+
+        document.getElementById('downloadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const statusText = document.getElementById('status-text');
+            const logContainer = document.getElementById('log-container');
+            
+            submitBtn.disabled = true;
+            statusText.innerHTML = '<span class="spinner">⏳</span> İşlem başlatılıyor...';
+            logContainer.style.display = 'none';
+            logContainer.innerText = '';
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/download', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                if (data.status === 'started' && data.task_id) {
+                    checkStatus(data.task_id, submitBtn, statusText, logContainer);
+                } else {
+                    statusText.innerText = "Hata: " + data.message;
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                statusText.innerText = "Bağlantı hatası!";
+                submitBtn.disabled = false;
+            }
+        };
+
+        function checkStatus(taskId, btn, statusText, logContainer) {
+            const interval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/status/${taskId}`);
+                    const statusData = await res.json();
+                    
+                    if (statusData.status === 'completed' || statusData.status === 'error') {
+                        clearInterval(interval);
+                        btn.disabled = false;
+                        
+                        statusText.innerText = statusData.status === 'completed' ? '✅ ' + statusData.message : '❌ ' + statusData.message;
+                        
+                        if (statusData.log) {
+                            logContainer.style.display = 'block';
+                            logContainer.innerText = statusData.log;
+                        }
+                        
+                        if (statusData.status === 'completed') {
+                            loadFiles();
+                        }
+                        
+                    } else {
+                        statusText.innerHTML = '<span class="spinner">⏳</span> ' + statusData.message;
+                    }
+                } catch (error) {
+                    console.error("Durum kontrolü başarısız:", error);
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

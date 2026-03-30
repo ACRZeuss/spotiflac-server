@@ -1,0 +1,10 @@
+services:
+  spotiflac-custom:
+    build: .
+    container_name: spotiflac-custom
+    ports:
+      - "5000:5000"
+    volumes:
+      # İndirilenlerin Navidrome'un okuduğu Runtipi medya klasörüne düşmesi için:
+      - /root/runtipi/runtipi/media/music:/downloads
+    restart: unless-stopped
