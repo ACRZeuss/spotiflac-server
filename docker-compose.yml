@@ -1,16 +1,27 @@
-name: spotiflac-custom
+version: '3.8'
+
 services:
   spotiflac:
-    build: .  # <--- EKSİK OLAN SİHİRLİ SATIR BURASI (Noktayı unutma)
+    build: .
     image: spotiflac-server:latest
-    container_name: spotiflac-app
+    container_name: spotiflac
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      # Runtipi port çakışmalarını önlemek için APP_PORT değişkenini otomatik atar
+      - "${APP_PORT}:5000"
     volumes:
-      - /DATA/Media/Music:/downloads
-      - /DATA/Media/Music:/app/downloads 
+      # Runtipi'nin global Medya klasörüne köprü kuruyoruz
+      - ${MEDIA_DIR}/Music:/downloads
+      - ${MEDIA_DIR}/Music:/app/downloads 
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Istanbul
+      # Runtipi bu bilgileri senin sisteminden otomatik çeker
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      # Runtipi'nin ana ağına bağlanıyoruz ki arayüzden erişilebilsin
+      - tipi_main_network
+
+networks:
+  tipi_main_network:
+    external: true
