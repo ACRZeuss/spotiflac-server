@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y ffmpeg git && rm -rf /var/lib/apt/lists
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir --force-reinstall --upgrade git+https://github.com/ShuShuzinhuu/SpotiFLAC-Module-Version.git@refs/pull/7/head
+RUN pip install --no-cache-dir --force-reinstall --upgrade git+https://github.com/ShuShuzinhuu/SpotiFLAC-Module-Version.git@refs/pull/27/head
 
 # === GOD MODE YAMASI (Python Çekirdek Yaması) ===
 # Python'un klasör yaratma kuralını, sistemin en derinine (sitecustomize) yazıyoruz.
